@@ -2,12 +2,14 @@ package com.br.ccs.mark.version.on.ccsmark.model;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
@@ -28,14 +30,18 @@ public class Cliente implements Serializable {
 
     private Integer cpf;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date dataAtualizacao;
+
     public Cliente(){}
 
-    public Cliente(String nome, String endereco, Integer telefone, String email, Integer cpf) {
+    public Cliente(String nome, String endereco, Integer telefone, String email, Integer cpf, Date dataAtualizacao) {
         this.nome = nome;
         this.endereco = endereco;
         this.telefone = telefone;
         this.email = email;
         this.cpf = cpf;
+        this.dataAtualizacao = dataAtualizacao;
     }
 
     public Integer getIdCliente() {
@@ -84,6 +90,14 @@ public class Cliente implements Serializable {
 
     public void setCpf(Integer cpf) {
         this.cpf = cpf;
+    }
+
+    public Date getDataAtualizacao() {
+        return dataAtualizacao;
+    }
+
+    public void setDataAtualizacao(Date dataAtualizacao) {
+        this.dataAtualizacao = dataAtualizacao;
     }
 
     @Override

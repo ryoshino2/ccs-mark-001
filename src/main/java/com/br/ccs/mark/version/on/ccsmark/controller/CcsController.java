@@ -6,10 +6,6 @@ import com.br.ccs.mark.version.on.ccsmark.model.Cliente;
 import com.br.ccs.mark.version.on.ccsmark.model.ContaCliente;
 import com.br.ccs.mark.version.on.ccsmark.repository.ClienteRepository;
 import com.br.ccs.mark.version.on.ccsmark.service.CcsService;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -23,7 +19,6 @@ import org.springframework.web.servlet.ModelAndView;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 @RestController
 public class CcsController {
@@ -89,4 +84,10 @@ public class CcsController {
     public void producerKafka() {
         ccsService.enviarPeloKafka();
     }
+
+    @GetMapping("/enviarParaOKafkaAssincrono")
+    public void producerKafkaAssincrono() {
+        ccsService.enviarPeloKafkaAssincrono();
+    }
+
 }

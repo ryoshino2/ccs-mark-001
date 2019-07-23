@@ -45,14 +45,15 @@ public class ConsumerDemo {
         // poll for new data
         FileWriter arquivo = new FileWriter("relatorioTransacao_Kafka");
         BufferedWriter bufferedWriter = new BufferedWriter(arquivo);
-        bufferedWriter.write("CPF;NOME;SALDO");
+        bufferedWriter.write("CPF;NOME");
         ConsumerRecords<String, Cliente> records;
 
         records = consumer.poll(Duration.ofMinutes(5)); // new in Kafka 2.0.0
         for (ConsumerRecord<String, Cliente> record : records) {
+            bufferedWriter.flush();
             logger.info("Value: " + record.value());
             bufferedWriter.newLine();
-            bufferedWriter.write(record.value().getNome());
+            bufferedWriter.write(record.value().getCpf() + ", " + record.value().getNome() + ";");
         }
         bufferedWriter.close();
     }

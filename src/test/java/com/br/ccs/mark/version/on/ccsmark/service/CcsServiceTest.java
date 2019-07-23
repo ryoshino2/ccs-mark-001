@@ -13,6 +13,7 @@
 
  import java.text.ParseException;
  import java.text.SimpleDateFormat;
+ import java.util.Date;
  import java.util.List;
 
  import static org.junit.Assert.assertEquals;
@@ -31,10 +32,11 @@
      private Cliente cliente;
      private ContaCliente contaCliente;
 
+
      @Before
      public void setup() throws ParseException {
          ccsService = new CcsService(clienteRepository, contaClienteRepository);
-         cliente = new Cliente("Rafael", "endereco", 123, "email@gmail.com", 7899);
+         cliente = new Cliente("Rafael", "endereco", 123, "email@gmail.com", 7899, new Date());
          SimpleDateFormat formato = new SimpleDateFormat( "yyyy/MM/dd" );
          contaCliente = new ContaCliente(cliente, 200.0, formato.parse("2019/08/25"));
          ccsService.saveTransaction(contaCliente);
