@@ -1,17 +1,12 @@
 package com.br.ccs.mark.version.on.ccsmark.service;
 
 import com.br.ccs.mark.version.on.ccsmark.model.Cliente;
-import com.br.ccs.mark.version.on.ccsmark.model.ClienteSerializer;
 import com.br.ccs.mark.version.on.ccsmark.model.ContaCliente;
 import com.br.ccs.mark.version.on.ccsmark.repository.ClienteRepository;
 import com.br.ccs.mark.version.on.ccsmark.repository.ContaClienteRepository;
 import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedWriter;
@@ -19,7 +14,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 @Service
 //@EnableScheduling
@@ -32,6 +26,8 @@ public class CcsService {
 
     @Autowired
     private final ContaClienteRepository contaClienteRepository;
+
+    private final CcsKafka kafkaProperties = new CcsKafka();
 
     public CcsService(ClienteRepository convidadoRepository, ContaClienteRepository contaClienteRepository) {
         this.clienteRepository = convidadoRepository;
@@ -47,14 +43,8 @@ public class CcsService {
     }
 
     public List<ContaCliente> pesquisarPorData(Date dataAtualizacao) {
-//        System.out.println(testeContador(dataAtualizacao));
         return contaClienteRepository.findByDataAtualizacao(dataAtualizacao);
     }
-
-    private long testeContador(Date dataAtualizacao) {
-        return contaClienteRepository.countByDataAtualizacao(dataAtualizacao);
-    }
-
 
     public void escreverArquivo(List<ContaCliente> contaClienteList, Date dataAtualizacao) throws IOException {
         FileWriter arquivo = new FileWriter("relatorioTransacao" + new Date());
@@ -95,25 +85,18 @@ public class CcsService {
         contaClienteRepository.save(contaCliente);
     }
 
-    public void saveCliente(Cliente cliente){
+    public void saveCliente(Cliente cliente) {
         clienteRepository.save(cliente);
     }
 
 
-//    @Scheduled(fixedDelay = MINUTOS)
+    //    @Scheduled(fixedDelay = MINUTOS)
     public void enviarPeloKafka() {
 
         Date dataAtualizacao = new Date();
 
-        String bootstrapServers = "127.0.0.1:9092";
-        // create Producer properties
-        Properties properties = new Properties();
-        properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ClienteSerializer.class.getName());
-
         // create the producer
-        KafkaProducer<String, Cliente> producer = new KafkaProducer<>(properties);
+        KafkaProducer<String, Cliente> producer = new KafkaProducer<>(kafkaProperties.configurationKafka());
 
         // create a producer record
         ProducerRecord<String, Cliente> record;
@@ -133,15 +116,8 @@ public class CcsService {
 
     public void enviarPeloKafkaAssincrono() {
 
-        String bootstrapServers = "127.0.0.1:9092";
-        // create Producer properties
-        Properties properties = new Properties();
-        properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ClienteSerializer.class.getName());
-
         // create the producer
-        KafkaProducer<String, Cliente> producer = new KafkaProducer<>(properties);
+        KafkaProducer<String, Cliente> producer = new KafkaProducer<>(kafkaProperties.configurationKafka());
 
         // create a producer record
         ProducerRecord<String, Cliente> record;
