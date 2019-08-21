@@ -14,7 +14,7 @@ public class ContaCliente {
 
     @Id
     @GeneratedValue
-    private Integer idConta;
+    private Long idConta;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinTable(name = "clienteConta")
@@ -35,11 +35,11 @@ public class ContaCliente {
         this.dataAtualizacao = dataAtualizacao;
     }
 
-    public Integer getIdConta() {
+    public Long getIdConta() {
         return idConta;
     }
 
-    public void setIdConta(Integer idConta) {
+    public void setIdConta(Long idConta) {
         this.idConta = idConta;
     }
 
@@ -70,5 +70,10 @@ public class ContaCliente {
     @Override
     public String toString() {
         return idCliente.getNome();
+    }
+
+    public ContaCliente gerarTransacao(){
+        ContaCliente contaCliente = new ContaCliente();
+        return contaCliente;
     }
 }

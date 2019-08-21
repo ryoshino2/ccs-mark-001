@@ -4,6 +4,7 @@ import com.br.ccs.mark.version.on.ccsmark.dto.ClienteDto;
 import com.br.ccs.mark.version.on.ccsmark.dto.ContaClienteDto;
 import com.br.ccs.mark.version.on.ccsmark.model.Cliente;
 import com.br.ccs.mark.version.on.ccsmark.model.ContaCliente;
+import com.br.ccs.mark.version.on.ccsmark.model.Transacao;
 import com.br.ccs.mark.version.on.ccsmark.repository.ClienteRepository;
 import com.br.ccs.mark.version.on.ccsmark.service.CcsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,6 +89,16 @@ public class CcsController {
     @GetMapping("/enviarParaOKafkaAssincrono")
     public void producerKafkaAssincrono() {
         ccsService.enviarPeloKafkaAssincrono();
+    }
+
+    @GetMapping("/atualizarSaldo")
+    public void atualizarSaldo(){
+        ccsService.atualizarSaldo();
+    }
+
+    @GetMapping("/buscarTransacoes/{idContaCliente}")
+    public List<Transacao> buscarTransacoes(@PathVariable("idContaCliente") Long idContaCliente) throws IOException {
+        return ccsService.buscarTransacoes(idContaCliente);
     }
 
 }

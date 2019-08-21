@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 public class ContaClienteDto {
 
-    private Integer id;
+    private Long id;
     private Double saldoConta;
     private Date dataAtualizacao;
 
@@ -22,7 +22,7 @@ public class ContaClienteDto {
         return contas.stream().map(ContaClienteDto::new).collect(Collectors.toList());
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 

@@ -4,6 +4,7 @@
  import com.br.ccs.mark.version.on.ccsmark.model.ContaCliente;
  import com.br.ccs.mark.version.on.ccsmark.repository.ClienteRepository;
  import com.br.ccs.mark.version.on.ccsmark.repository.ContaClienteRepository;
+ import com.br.ccs.mark.version.on.ccsmark.repository.TransacaoRepository;
  import org.junit.Before;
  import org.junit.Test;
  import org.junit.runner.RunWith;
@@ -28,6 +29,8 @@
      @Autowired
      private ContaClienteRepository contaClienteRepository;
 
+     @Autowired
+     private TransacaoRepository transacaoRepository;
      private CcsService ccsService;
      private Cliente cliente;
      private ContaCliente contaCliente;
@@ -35,7 +38,7 @@
 
      @Before
      public void setup() throws ParseException {
-         ccsService = new CcsService(clienteRepository, contaClienteRepository);
+         ccsService = new CcsService(clienteRepository, contaClienteRepository, transacaoRepository);
          cliente = new Cliente("Rafael", "endereco", 123, "email@gmail.com", 7899, new Date());
          SimpleDateFormat formato = new SimpleDateFormat( "yyyy/MM/dd" );
          contaCliente = new ContaCliente(cliente, 200.0, formato.parse("2019/08/25"));

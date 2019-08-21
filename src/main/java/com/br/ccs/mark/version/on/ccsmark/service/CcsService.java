@@ -2,8 +2,11 @@ package com.br.ccs.mark.version.on.ccsmark.service;
 
 import com.br.ccs.mark.version.on.ccsmark.model.Cliente;
 import com.br.ccs.mark.version.on.ccsmark.model.ContaCliente;
+import com.br.ccs.mark.version.on.ccsmark.model.TipoTransacao;
+import com.br.ccs.mark.version.on.ccsmark.model.Transacao;
 import com.br.ccs.mark.version.on.ccsmark.repository.ClienteRepository;
 import com.br.ccs.mark.version.on.ccsmark.repository.ContaClienteRepository;
+import com.br.ccs.mark.version.on.ccsmark.repository.TransacaoRepository;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +15,9 @@ import org.springframework.stereotype.Service;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 //@EnableScheduling
@@ -27,11 +31,15 @@ public class CcsService {
     @Autowired
     private final ContaClienteRepository contaClienteRepository;
 
+    @Autowired
+    private final TransacaoRepository transacaoRepository;
+
     private final CcsKafka kafkaProperties = new CcsKafka();
 
-    public CcsService(ClienteRepository convidadoRepository, ContaClienteRepository contaClienteRepository) {
+    public CcsService(ClienteRepository convidadoRepository, ContaClienteRepository contaClienteRepository, TransacaoRepository transacaoRepository) {
         this.clienteRepository = convidadoRepository;
         this.contaClienteRepository = contaClienteRepository;
+        this.transacaoRepository = transacaoRepository;
     }
 
     public Iterable<Cliente> obterTodosClientes() {
@@ -133,5 +141,26 @@ public class CcsService {
         producer.flush();
         // flush and close producer
         producer.close();
+    }
+
+    public void atualizarSaldo() {
+        List<Long> contaClienteList = new ArrayList<>();
+        Optional<ContaCliente> contaClienteBuscado;
+
+        for (ContaCliente contaCliente : contaClienteRepository.findAll()) {
+            contaClienteList.add(contaCliente.getIdConta());
+        }
+        Random gerador = new Random();
+        long id = gerador.nextInt(Math.toIntExact(contaClienteList.stream().collect(Collectors.summarizingLong(Long::longValue)).getMax()));
+        System.out.println(id);
+        if(contaClienteList.contains(id)){
+            Transacao transacao = new Transacao(id,100.0, LocalDate.now(), TipoTransacao.CREDIT);
+            transacaoRepository.save(transacao);
+            System.out.println(transacao.toString());
+        }
+    }
+
+    public List<Transacao> buscarTransacoes(Long idContaCliente){
+        return transacaoRepository.findByIdContaCliente(idContaCliente);
     }
 }
