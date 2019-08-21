@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -152,15 +154,15 @@ public class CcsService {
         }
         Random gerador = new Random();
         long id = gerador.nextInt(Math.toIntExact(contaClienteList.stream().collect(Collectors.summarizingLong(Long::longValue)).getMax()));
-        System.out.println(id);
-        if(contaClienteList.contains(id)){
-            Transacao transacao = new Transacao(id,100.0, LocalDate.now(), TipoTransacao.CREDIT);
+        if (contaClienteList.contains(id)) {
+            DecimalFormat formatter = new DecimalFormat("##,###");
+            Transacao transacao = new Transacao(id, Double.valueOf(formatter.format(gerador.nextDouble() *100)), LocalDate.now(), TipoTransacao.pegarTransacaoAleatoria());
             transacaoRepository.save(transacao);
             System.out.println(transacao.toString());
         }
     }
 
-    public List<Transacao> buscarTransacoes(Long idContaCliente){
+    public List<Transacao> buscarTransacoes(Long idContaCliente) {
         return transacaoRepository.findByIdContaCliente(idContaCliente);
     }
 }

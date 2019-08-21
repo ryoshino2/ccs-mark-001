@@ -1,5 +1,7 @@
 package com.br.ccs.mark.version.on.ccsmark.model;
 
+import java.util.Random;
+
 public enum TipoTransacao {
     DEBIT("DEBIT"),
     CREDIT("CREDIT");
@@ -10,8 +12,12 @@ public enum TipoTransacao {
         this.description = description;
     }
 
-
     public String getDescription() {
         return description;
+    }
+
+    public static TipoTransacao pegarTransacaoAleatoria() {
+        Random random = new Random();
+        return values()[random.nextInt(values().length)];
     }
 }
