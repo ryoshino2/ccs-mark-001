@@ -69,7 +69,12 @@ public class ContaCliente {
 
     @Override
     public String toString() {
-        return idCliente.getNome();
+        return "ContaCliente{" +
+                "idConta=" + idConta +
+                ", idCliente=" + idCliente +
+                ", saldoConta=" + saldoConta +
+                ", dataAtualizacao=" + dataAtualizacao +
+                '}';
     }
 
     public ContaCliente gerarTransacao(){

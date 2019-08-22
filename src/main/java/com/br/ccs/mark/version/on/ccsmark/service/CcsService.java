@@ -147,7 +147,6 @@ public class CcsService {
 
     public void atualizarSaldo() {
         List<Long> contaClienteList = new ArrayList<>();
-        Optional<ContaCliente> contaClienteBuscado;
 
         for (ContaCliente contaCliente : contaClienteRepository.findAll()) {
             contaClienteList.add(contaCliente.getIdConta());
@@ -158,7 +157,15 @@ public class CcsService {
             DecimalFormat formatter = new DecimalFormat("##,###");
             Transacao transacao = new Transacao(id, Double.valueOf(formatter.format(gerador.nextDouble() *100)), LocalDate.now(), TipoTransacao.pegarTransacaoAleatoria());
             transacaoRepository.save(transacao);
+
+            ContaCliente contaCliente = contaClienteRepository.findByIdConta(id);
+            Double saldo = contaCliente.getSaldoConta() + transacao.getValorTransacao();
+            contaCliente.setSaldoConta(saldo);
+            contaClienteRepository.save(contaCliente);
+
+
             System.out.println(transacao.toString());
+            System.out.println(contaCliente.toString());
         }
     }
 

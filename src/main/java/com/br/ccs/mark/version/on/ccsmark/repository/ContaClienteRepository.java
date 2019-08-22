@@ -9,7 +9,7 @@ import java.util.List;
 
 @Repository
 public interface ContaClienteRepository extends JpaRepository<ContaCliente, Long> {
-
+    ContaCliente findByIdConta(Long idConta);
     List<ContaCliente> findByDataAtualizacao(Date dataAtualizacao);
     long countByDataAtualizacao(Date dataAtualizacao);
 
