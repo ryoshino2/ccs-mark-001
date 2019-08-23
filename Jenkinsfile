@@ -3,7 +3,10 @@ node {
    stage('Preparation') { // for display purposes
       git 'https://github.com/ryoshino2/ccs-mark-001'
    }
-   stage('Test') {
+   stage('Clean') {
+            sh './mvnw clean'
+      }
+      stage('Test') {
             sh './mvnw test'
       }
     stage('Build'){
