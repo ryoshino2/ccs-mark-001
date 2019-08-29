@@ -10,23 +10,27 @@ import com.br.ccs.mark.version.on.ccsmark.repository.TransacaoRepository;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
 
 @Service
-//@EnableScheduling
+@EnableScheduling
 public class CcsService {
 
     private final long MINUTOS = (5000 * 60);
-
+    private final long MINUTOSATUALIZARSALDO = (1000 * 60);
     @Autowired
     private final ClienteRepository clienteRepository;
 
@@ -100,10 +104,7 @@ public class CcsService {
     }
 
 
-    //    @Scheduled(fixedDelay = MINUTOS)
     public void enviarPeloKafka() {
-
-        Date dataAtualizacao = new Date();
 
         // create the producer
         KafkaProducer<String, Cliente> producer = new KafkaProducer<>(kafkaProperties.configurationKafka());
@@ -111,7 +112,7 @@ public class CcsService {
         // create a producer record
         ProducerRecord<String, Cliente> record;
 
-        List<Cliente> contaClienteList = clienteRepository.findByDataAtualizacao(dataAtualizacao);
+        List<Cliente> contaClienteList = clienteRepository.findByDataAtualizacao(new Date());
 
         for (Cliente cliente : contaClienteList) {
             record = new ProducerRecord<>("ccs_mark", cliente);
@@ -125,26 +126,26 @@ public class CcsService {
     }
 
     public void enviarPeloKafkaAssincrono() {
-
         // create the producer
         KafkaProducer<String, Cliente> producer = new KafkaProducer<>(kafkaProperties.configurationKafka());
 
         // create a producer record
         ProducerRecord<String, Cliente> record;
 
-        List<Cliente> contaClienteList = clienteRepository.findAll();
+        List<Cliente> contaClienteList = clienteRepository.findByDataAtualizacao(new Date());
 
         for (Cliente cliente : contaClienteList) {
             record = new ProducerRecord<>("ccs_mark", cliente);
             producer.send(record);
         }
-
+        System.out.println(contaClienteList.get(0).getEmail());
         // flush data
         producer.flush();
         // flush and close producer
         producer.close();
     }
 
+    @Scheduled(fixedDelay = MINUTOSATUALIZARSALDO)
     public void atualizarSaldo() {
         List<Long> contaClienteList = new ArrayList<>();
 
@@ -152,17 +153,30 @@ public class CcsService {
             contaClienteList.add(contaCliente.getIdConta());
         }
         Random gerador = new Random();
-        long id = gerador.nextInt(Math.toIntExact(contaClienteList.stream().collect(Collectors.summarizingLong(Long::longValue)).getMax()));
+//        int max = Math.toIntExact(contaClienteList.stream().collect(Collectors.summarizingLong(Long::longValue)).getMax());
+//        int min = Math.toIntExact(contaClienteList.stream().collect(Collectors.summarizingLong(Long::longValue)).getMin());
+        long id = 101;
         if (contaClienteList.contains(id)) {
             DecimalFormat formatter = new DecimalFormat("##,###");
-            Transacao transacao = new Transacao(id, Double.valueOf(formatter.format(gerador.nextDouble() *100)), LocalDate.now(), TipoTransacao.pegarTransacaoAleatoria());
+            Transacao transacao = new Transacao(id, Double.valueOf(formatter.format(gerador.nextDouble() * 100)), new Date(), TipoTransacao.pegarTransacaoAleatoria());
             transacaoRepository.save(transacao);
 
             ContaCliente contaCliente = contaClienteRepository.findByIdConta(id);
-            Double saldo = contaCliente.getSaldoConta() + transacao.getValorTransacao();
+            Double saldo = null;
+            if(transacao.getTipoTransacao() == TipoTransacao.CREDIT){
+                saldo = contaCliente.getSaldoConta() + transacao.getValorTransacao();
+            }
+            else if(transacao.getTipoTransacao() == TipoTransacao.DEBIT){
+                saldo = contaCliente.getSaldoConta() - transacao.getValorTransacao();
+            }
+            contaCliente.setDataAtualizacao(transacao.getDataTransacao());
             contaCliente.setSaldoConta(saldo);
             contaClienteRepository.save(contaCliente);
 
+            System.out.println(contaCliente.getIdCliente().getIdCliente());
+            Cliente cliente = clienteRepository.findByIdCliente(contaCliente.getIdCliente().getIdCliente());
+            cliente.setDataAtualizacao(transacao.getDataTransacao());
+            clienteRepository.save(cliente);
 
             System.out.println(transacao.toString());
             System.out.println(contaCliente.toString());

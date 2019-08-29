@@ -1,5 +1,8 @@
 package com.br.ccs.mark.version.on.ccsmark.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+import org.apache.tomcat.jni.Local;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -9,6 +12,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -18,7 +22,7 @@ public class Cliente implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer idCliente;
+    private Long idCliente;
 
     private String nome;
 
@@ -29,7 +33,6 @@ public class Cliente implements Serializable {
     private String email;
 
     private Integer cpf;
-
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dataAtualizacao;
 
@@ -44,11 +47,11 @@ public class Cliente implements Serializable {
         this.dataAtualizacao = dataAtualizacao;
     }
 
-    public Integer getIdCliente() {
+    public Long getIdCliente() {
         return idCliente;
     }
 
-    public void setIdCliente(Integer idCliente) {
+    public void setIdCliente(Long idCliente) {
         this.idCliente = idCliente;
     }
 

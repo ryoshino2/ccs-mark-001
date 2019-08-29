@@ -14,6 +14,7 @@
 
  import java.text.ParseException;
  import java.text.SimpleDateFormat;
+ import java.time.LocalDate;
  import java.util.Date;
  import java.util.List;
 
@@ -41,7 +42,7 @@
          ccsService = new CcsService(clienteRepository, contaClienteRepository, transacaoRepository);
          cliente = new Cliente("Rafael", "endereco", 123, "email@gmail.com", 7899, new Date());
          SimpleDateFormat formato = new SimpleDateFormat( "yyyy/MM/dd" );
-         contaCliente = new ContaCliente(cliente, 200.0, formato.parse("2019/08/25"));
+         contaCliente = new ContaCliente(cliente, 200.0, new Date());
          ccsService.saveTransaction(contaCliente);
      }
 
@@ -54,7 +55,7 @@
      @Test
      public void deveLocalizarContaAoPesquisarPorData() throws ParseException {
          SimpleDateFormat formato = new SimpleDateFormat( "yyyy/MM/dd" );
-         List listaClientesTotal = ccsService.pesquisarPorData(formato.parse("2019/08/25"));
+         List listaClientesTotal = ccsService.pesquisarPorData(new Date());
 
          assertEquals(1, listaClientesTotal.size());
      }
@@ -62,7 +63,7 @@
      @Test
      public void naoDeveLocalizarAoPesquisarPorData() throws ParseException {
          SimpleDateFormat formato = new SimpleDateFormat( "yyyy/MM/dd" );
-         List listaClientesTotal = ccsService.pesquisarPorData(formato.parse("2019/08/26"));
+         List listaClientesTotal = ccsService.pesquisarPorData(new Date());
          assertEquals(0, listaClientesTotal.size());
      }
 

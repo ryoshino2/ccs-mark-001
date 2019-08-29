@@ -2,6 +2,7 @@ package com.br.ccs.mark.version.on.ccsmark.dto;
 
 import com.br.ccs.mark.version.on.ccsmark.model.ContaCliente;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;

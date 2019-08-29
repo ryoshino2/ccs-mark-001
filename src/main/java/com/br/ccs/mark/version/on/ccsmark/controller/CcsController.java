@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
@@ -48,6 +50,7 @@ public class CcsController {
 
     @GetMapping("/gerarRelatorio/{dataAtualizacao}")
     public ResponseEntity<List<ContaCliente>> gerarRelatorio(@PathVariable("dataAtualizacao") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dataAtualizacao) throws IOException {
+
         List<ContaCliente> contaClienteList = ccsService.pesquisarPorData(dataAtualizacao);
         ccsService.escreverArquivo(contaClienteList, dataAtualizacao);
         return ResponseEntity.status(HttpStatus.OK).body(contaClienteList);

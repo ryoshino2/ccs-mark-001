@@ -4,6 +4,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.Date;
 
 @Entity
 public class Transacao {
@@ -16,7 +17,7 @@ public class Transacao {
     private Long idContaCliente;
     private Double valorTransacao;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate dataTransacao;
+    private Date dataTransacao;
     private TipoTransacao tipoTransacao;
 
 
@@ -24,7 +25,7 @@ public class Transacao {
     public Transacao() {
     }
 
-    public Transacao(Long idContaCliente, Double valorTransacao, LocalDate dataTransacao, TipoTransacao tipoTransacao) {
+    public Transacao(Long idContaCliente, Double valorTransacao, Date dataTransacao, TipoTransacao tipoTransacao) {
         this.idContaCliente = idContaCliente;
         this.valorTransacao = valorTransacao;
         this.dataTransacao = dataTransacao;
@@ -48,11 +49,11 @@ public class Transacao {
         this.valorTransacao = valorTransacao;
     }
 
-    public LocalDate getDataTransacao() {
+    public Date getDataTransacao() {
         return dataTransacao;
     }
 
-    public void setDataTransacao(LocalDate dataTransacao) {
+    public void setDataTransacao(Date dataTransacao) {
         this.dataTransacao = dataTransacao;
     }
 

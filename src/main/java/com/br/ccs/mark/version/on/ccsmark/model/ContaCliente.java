@@ -6,6 +6,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -17,7 +18,6 @@ public class ContaCliente {
     private Long idConta;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinTable(name = "clienteConta")
     @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Cliente idCliente;
 

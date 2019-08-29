@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class ClienteDto {
 
-    private Integer id;
+    private Long id;
     private String nome;
 
     public ClienteDto(Cliente cliente) {
@@ -25,7 +25,7 @@ public class ClienteDto {
         return clientes.map(ClienteDto::new);
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
