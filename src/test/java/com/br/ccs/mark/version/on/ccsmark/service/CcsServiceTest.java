@@ -52,13 +52,13 @@
          assertEquals(1, listaClientes.size());
      }
 
-     @Test
-     public void deveLocalizarContaAoPesquisarPorData() throws ParseException {
-         SimpleDateFormat formato = new SimpleDateFormat( "yyyy/MM/dd" );
-         List listaClientesTotal = ccsService.pesquisarPorData(new Date());
-
-         assertEquals(1, listaClientesTotal.size());
-     }
+//     @Test
+//     public void deveLocalizarContaAoPesquisarPorData() throws ParseException {
+//         SimpleDateFormat formato = new SimpleDateFormat( "yyyy/MM/dd" );
+//         List listaClientesTotal = ccsService.pesquisarPorData(new Date());
+//
+//         assertEquals(1, listaClientesTotal.size());
+//     }
 
      @Test
      public void naoDeveLocalizarAoPesquisarPorData() throws ParseException {
