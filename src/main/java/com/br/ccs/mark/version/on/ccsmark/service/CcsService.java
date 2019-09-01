@@ -145,46 +145,68 @@ public class CcsService {
         producer.close();
     }
 
-    @Cacheable(value = "listaDeId")
     @Scheduled(fixedDelay = MINUTOSATUALIZARSALDO)
     public void atualizarSaldo() {
+        Double saldo = null;
+        Transacao transacao = gerarTransacao();
+        ContaCliente contaCliente = contaClienteRepository.findByIdConta(transacao.getIdContaCliente());
+        saldo = efetuarTransacao(transacao, contaCliente, saldo);
+        atualizarSaldoContaCliente(getIdContaCliente(), transacao, saldo);
+        atualizarDataDeMovimentacaoCliente(contaCliente.getIdCliente().getIdCliente(), transacao);
+    }
+
+    @Cacheable(value = "listaDeId")
+    private long getIdContaCliente() {
+        List<Long> contaClienteList = buscarIdsContaClientes();
+        Random gerador = new Random();
+        int max = Math.toIntExact(contaClienteList.stream().collect(Collectors.summarizingLong(Long::longValue)).getMax());
+
+        return 102;
+    }
+
+    private Double efetuarTransacao(Transacao transacao, ContaCliente contaCliente, Double saldo) {
+        if (transacao.getTipoTransacao() == TipoTransacao.CREDIT) {
+            saldo = contaCliente.getSaldoConta() + transacao.getValorTransacao();
+        } else if (transacao.getTipoTransacao() == TipoTransacao.DEBIT) {
+            saldo = contaCliente.getSaldoConta() - transacao.getValorTransacao();
+        }
+        return saldo;
+    }
+
+    private List<Long> buscarIdsContaClientes() {
         List<Long> contaClienteList = new ArrayList<>();
 
         for (ContaCliente contaCliente : contaClienteRepository.findAll()) {
             contaClienteList.add(contaCliente.getIdConta());
         }
-
-        Random gerador = new Random();
-        int max = Math.toIntExact(contaClienteList.stream().collect(Collectors.summarizingLong(Long::longValue)).getMax());
-        long id = gerador.nextInt(max);
-
-        if (contaClienteList.contains(id)) {
-            DecimalFormat formatter = new DecimalFormat("##,###");
-            Transacao transacao = new Transacao(id, Double.valueOf(formatter.format(gerador.nextDouble() * 100)), new Date(), TipoTransacao.pegarTransacaoAleatoria());
-            transacaoRepository.save(transacao);
-
-            ContaCliente contaCliente = contaClienteRepository.findByIdConta(id);
-            Double saldo = null;
-            if (transacao.getTipoTransacao() == TipoTransacao.CREDIT) {
-                saldo = contaCliente.getSaldoConta() + transacao.getValorTransacao();
-            } else if (transacao.getTipoTransacao() == TipoTransacao.DEBIT) {
-                saldo = contaCliente.getSaldoConta() - transacao.getValorTransacao();
-            }
-            atualizarSaldoContaCliente(id, transacao, saldo);
-            atualizarSaldoDoCliente(contaCliente.getIdCliente().getIdCliente(), transacao);
-
-            System.out.println(transacao.toString());
-            System.out.println(contaCliente.toString());
-        }
+        return contaClienteList;
     }
 
-    private void atualizarSaldoDoCliente(Long id, Transacao transacao) {
+    public Transacao gerarTransacao() {
+        long id = getIdContaCliente();
+        Transacao transacao = null;
+        try {
+            DecimalFormat formatter = new DecimalFormat("##,###");
+            Random gerador = new Random();
+            transacao = new Transacao(id, Double.valueOf(formatter.format(gerador.nextDouble() * 100)), new Date(), TipoTransacao.pegarTransacaoAleatoria());
+            salvarTransacao(transacao);
+        } catch (NullPointerException e) {
+            System.out.println("nao funcionou");
+        }
+        return transacao;
+    }
+
+    private void salvarTransacao(Transacao transacao) {
+        transacaoRepository.save(transacao);
+    }
+
+    public void atualizarDataDeMovimentacaoCliente(Long id, Transacao transacao) {
         Cliente cliente = clienteRepository.findByIdCliente(id);
         cliente.setDataAtualizacao(transacao.getDataTransacao());
         clienteRepository.save(cliente);
     }
 
-    private void atualizarSaldoContaCliente(Long id, Transacao transacao, Double saldo) {
+    public void atualizarSaldoContaCliente(Long id, Transacao transacao, Double saldo) {
         ContaCliente contaCliente = contaClienteRepository.findByIdConta(id);
         contaCliente.setDataAtualizacao(transacao.getDataTransacao());
         contaCliente.setSaldoConta(saldo);
