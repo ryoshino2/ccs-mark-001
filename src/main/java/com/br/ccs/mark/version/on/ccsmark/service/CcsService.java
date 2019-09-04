@@ -34,7 +34,6 @@ public class CcsService {
     //288 transacoes por dia
     private final long GERAR_TRANSACAO = (5000 * 60);
     private final CcsKafka kafkaProperties = new CcsKafka();
-    private final CcsService _aService;
 
     @Autowired
     private ClienteRepository clienteRepository;
@@ -43,10 +42,6 @@ public class CcsService {
     @Autowired
     private TransacaoRepository transacaoRepository;
 
-    @Autowired
-    public CcsService(CcsService aService) {
-        _aService = aService;
-    }
 
     public Iterable<Cliente> obterTodosClientes() {
         return clienteRepository.findAll();
