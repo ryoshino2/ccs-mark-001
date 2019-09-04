@@ -10,7 +10,8 @@ import com.br.ccs.mark.version.on.ccsmark.repository.TransacaoRepository;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -26,26 +27,25 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
+@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 @EnableScheduling
 public class CcsService {
 
-    private final long MINUTOS = (5000 * 60);
-    private final long MINUTOSATUALIZARSALDO = (1000 * 60);
-    @Autowired
-    private final ClienteRepository clienteRepository;
-
-    @Autowired
-    private final ContaClienteRepository contaClienteRepository;
-
-    @Autowired
-    private final TransacaoRepository transacaoRepository;
-
+    //288 transacoes por dia
+    private final long GERAR_TRANSACAO = (5000 * 60);
     private final CcsKafka kafkaProperties = new CcsKafka();
+    private final CcsService _aService;
 
-    public CcsService(ClienteRepository convidadoRepository, ContaClienteRepository contaClienteRepository, TransacaoRepository transacaoRepository) {
-        this.clienteRepository = convidadoRepository;
-        this.contaClienteRepository = contaClienteRepository;
-        this.transacaoRepository = transacaoRepository;
+    @Autowired
+    private ClienteRepository clienteRepository;
+    @Autowired
+    private ContaClienteRepository contaClienteRepository;
+    @Autowired
+    private TransacaoRepository transacaoRepository;
+
+    @Autowired
+    public CcsService(CcsService aService) {
+        _aService = aService;
     }
 
     public Iterable<Cliente> obterTodosClientes() {
@@ -105,7 +105,6 @@ public class CcsService {
 
 
     public void enviarPeloKafka() {
-
         // create the producer
         KafkaProducer<String, Cliente> producer = new KafkaProducer<>(kafkaProperties.configurationKafka());
 
@@ -145,23 +144,25 @@ public class CcsService {
         producer.close();
     }
 
-    @Scheduled(fixedDelay = MINUTOSATUALIZARSALDO)
+    @Scheduled(fixedDelay = GERAR_TRANSACAO)
     public void atualizarSaldo() {
         Double saldo = null;
         Transacao transacao = gerarTransacao();
         ContaCliente contaCliente = contaClienteRepository.findByIdConta(transacao.getIdContaCliente());
-        saldo = efetuarTransacao(transacao, contaCliente, saldo);
-        atualizarSaldoContaCliente(getIdContaCliente(), transacao, saldo);
-        atualizarDataDeMovimentacaoCliente(contaCliente.getIdCliente().getIdCliente(), transacao);
+        try {
+            saldo = efetuarTransacao(transacao, contaCliente, saldo);
+            atualizarSaldoContaCliente(getIdContaCliente(), transacao, saldo);
+            atualizarDataDeMovimentacaoCliente(contaCliente.getIdCliente().getIdCliente(), transacao);
+        } catch (NullPointerException e) {
+            System.out.println("Cliente com id: " + transacao.getIdContaCliente() + " não localizado");
+        }
     }
 
-    @Cacheable(value = "listaDeId")
+
     private long getIdContaCliente() {
         List<Long> contaClienteList = buscarIdsContaClientes();
         Random gerador = new Random();
-        int max = Math.toIntExact(contaClienteList.stream().collect(Collectors.summarizingLong(Long::longValue)).getMax());
-
-        return 102;
+        return gerador.nextInt(Math.toIntExact(contaClienteList.stream().collect(Collectors.summarizingLong(Long::longValue)).getMax())) + 1;
     }
 
     private Double efetuarTransacao(Transacao transacao, ContaCliente contaCliente, Double saldo) {

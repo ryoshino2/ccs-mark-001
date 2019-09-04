@@ -29,9 +29,6 @@ public class CcsController {
     @Autowired
     private CcsService ccsService;
 
-    @Autowired
-    private ClienteRepository clienteRepository;
-
     @GetMapping
     public ModelAndView index() {
         return new ModelAndView("index");
@@ -50,10 +47,14 @@ public class CcsController {
 
     @GetMapping("/gerarRelatorio/{dataAtualizacao}")
     public ResponseEntity<List<ContaCliente>> gerarRelatorio(@PathVariable("dataAtualizacao") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dataAtualizacao) throws IOException {
-
         List<ContaCliente> contaClienteList = ccsService.pesquisarPorData(dataAtualizacao);
         ccsService.escreverArquivo(contaClienteList, dataAtualizacao);
         return ResponseEntity.status(HttpStatus.OK).body(contaClienteList);
+    }
+
+    @GetMapping("/gerarTransacao")
+    public void gerarTransacao(){
+        ccsService.gerarTransacao();
     }
 
     @GetMapping("/gerarRelatorio")

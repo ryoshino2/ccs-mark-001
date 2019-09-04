@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
-@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class ContaCliente {
 
     @Id
