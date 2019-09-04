@@ -33,6 +33,7 @@ public class CcsServiceTest {
 
     @Autowired
     private TransacaoRepository transacaoRepository;
+    @Autowired
     private CcsService ccsService;
     private Cliente cliente;
     private ContaCliente contaCliente;
@@ -40,7 +41,6 @@ public class CcsServiceTest {
 
     @Before
     public void setup() throws ParseException {
-        ccsService = new CcsService();
         cliente = new Cliente("Rafael", "endereco", 123, "email@gmail.com", 7899, new Date());
         SimpleDateFormat formato = new SimpleDateFormat("yyyy/MM/dd");
         contaCliente = new ContaCliente(cliente, 200.0, new Date());

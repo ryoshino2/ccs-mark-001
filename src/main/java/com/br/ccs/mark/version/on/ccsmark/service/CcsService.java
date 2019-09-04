@@ -27,7 +27,6 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
-@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 @EnableScheduling
 public class CcsService {
 
